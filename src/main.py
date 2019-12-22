@@ -1,5 +1,10 @@
+import telebot
+import config
+import database
 import alcodaysbot
 
 if __name__ == "__main__":
-    bot = alcodaysbot.AlcoBot()
+    telegram = telebot.TeleBot(config.token)
+    db = database.Database('localhost', 27017)
+    bot = alcodaysbot.AlcoBot(telegram, db)
     bot.run()
