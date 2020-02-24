@@ -1,0 +1,21 @@
+version: '3'
+services: 
+    bot:
+        build: .
+        restart: always
+        ports: 
+         - "18801:18801"
+
+        volumes: 
+            - ./src/:/usr/alcobot/src/
+
+        depends_on: 
+            - mongo
+        links: 
+            - mongo
+
+    mongo:
+        image: mongo
+        restart: always 
+        volumes: 
+            - /usr/alcobot/db:/data/db
