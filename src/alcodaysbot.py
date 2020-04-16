@@ -1,3 +1,5 @@
+import datetime
+
 class AlcoBot:
     def __init__(self, bot, db):
         self.__bot = bot
@@ -23,8 +25,20 @@ class AlcoBot:
             'filters': {'commands': ['show']}
         })
 
+        self.__bot.add_message_handler({
+            'function': self.__add_today,
+            'filters': {'commands': ['today']}
+        })
+
     def run(self):
         self.__bot.polling(none_stop=True)
+
+    def __insert_date(self, message, date):
+        if not self.__db.isDateExist(message.from_user.id, date):
+            self.__db.insert(message.from_user.id, date)
+            self.__bot.reply_to(message, "Added")
+        else:
+            self.__bot.reply_to(message, "Already exist")
 
     def __send_welcome(self, message):
         self.__bot.reply_to(message, self.__welcome_msg.format(
@@ -32,11 +46,11 @@ class AlcoBot:
 
     def __add_new_date(self, message):
         parts = str(message.text).split(' ',maxsplit=1)
-        if not self.__db.isDateExist(message.from_user.id, parts[1]):
-            self.__db.insert(message.from_user.id, parts[1])
-            self.__bot.reply_to(message, "Added")
-        else:
-            self.__bot.reply_to(message, "Already exist")
+        self.__insert_date(message, parts[1])
+
+    def __add_today(self, message):
+        now = datetime.datetime.today().strftime("%Y-%m-%d")
+        self.__insert_date(message, now)
 
     def __show_alco_dates(self, message):
         dates = self.__db.findAll(message.from_user.id)
