@@ -6,6 +6,8 @@ class AlcoBot:
         self.__db = db
 
         self.__welcome_msg = """Hi, {}. I will store dates when you drank
+        /today - to add today to your drink dates
+        /yesterday - to add yesterday to your drink dates
         /add - add new drink date in format YYYY-MM-DD
         /show - show all drink dates
         """
@@ -30,6 +32,11 @@ class AlcoBot:
             'filters': {'commands': ['today']}
         })
 
+        self.__bot.add_message_handler({
+            'function': self.__add_yesterday,
+            'filters': {'commands': ['yesterday']}
+        })
+
     def run(self):
         self.__bot.polling(none_stop=True)
 
@@ -51,6 +58,11 @@ class AlcoBot:
     def __add_today(self, message):
         now = datetime.datetime.today().strftime("%Y-%m-%d")
         self.__insert_date(message, now)
+
+    def __add_yesterday(self, message):
+        now = datetime.datetime.today()
+        yesterday = now - datetime.timedelta(days=1)
+        self.__insert_date(message, yesterday.strftime("%Y-%m-%d"))
 
     def __show_alco_dates(self, message):
         dates = self.__db.findAll(message.from_user.id)
